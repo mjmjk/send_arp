@@ -11,9 +11,6 @@ using namespace std;
 int main(int argc, char *argv[])
 {
 
-    argv[1] = "ens33";
-    argv[2] = "192.168.198.140";
-    argv[3] = "192.168.3.116";
 
     pcap_arg arg;
     struct arp_header ahdr;
@@ -28,7 +25,7 @@ int main(int argc, char *argv[])
     {
         exit(EXIT_FAILURE);
     }
-/*
+
     if(set_handle_arp(&arg))
     {
         exit(EXIT_FAILURE);
@@ -65,7 +62,7 @@ int main(int argc, char *argv[])
     {
         exit(EXIT_FAILURE);
     }
-*/
+
     return 0;
 
 
