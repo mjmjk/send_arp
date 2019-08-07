@@ -1,16 +1,19 @@
 #include "header.h"
 
-void build_ether(u_char *frame, struct ether_header *hdr)
+
+//save ethernet header information
+void get_ethernet(u_char *frame, struct ether_header *ehdr)
 {
-    memcpy(frame, hdr, ETH_HEADER_LEN);
+    memcpy(frame, ehdr, ETH_HEADER_LEN);
 }
 
-void build_arp(u_char *packet, struct arp_header *hdr)
+//save arp header information
+void get_arp(u_char *packet, struct arp_header *ahdr)
 {
-    hdr->htype = htons(0x01);
-    hdr->ptype = htons(ETHERTYPE_IP); // ETHERTYPE_IP = 0X0800
-    hdr->hlen = HWADDR_LEN;
-    hdr->plen = PTADDR_LEN;
-    memcpy(packet, hdr, ARP_HEADER_LEN);
+    ahdr->htype = htons(0x01);
+    ahdr->ptype = htons(ETHERTYPE_IP); // ETHERTYPE_IP = 0X0800
+    ahdr->hlen = MAC_ADDRESS_LEN;
+    ahdr->plen = IP_ADDRESS_LEN;
+    memcpy(packet, ahdr, ARP_HEADER_LEN);
 
 }

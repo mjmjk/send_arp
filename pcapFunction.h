@@ -4,7 +4,7 @@
 #define RECV_ITER_N 5
 
 #include <pcap/pcap.h>
-#include "pcap_msg.h"
+#include "pcapStruct.h"
 #include "parsing.h"
 #include "header.h"
 

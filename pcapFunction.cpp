@@ -1,5 +1,5 @@
 #include <pcap/pcap.h>
-#include "all_pcap.h"
+#include "pcapFunction.h"
 
 //open pcap handler
 int init_handle(pcap_arg *arg, char *dev)
@@ -10,20 +10,20 @@ int init_handle(pcap_arg *arg, char *dev)
     {
         printf("Can not find device!!");
 
-        return RET_ERR;
+        return RET_ERROR;
     }
 
-    arg->net =0;
-    arg->mask=0;
+     arg->net =0;
+     arg->mask=0;
 
-    arg->hand = pcap_open_live(dev, 42, 1, 1000, errbuf);
+    arg->hand = pcap_open_live(dev, BUFSIZ, 1, 1000, errbuf);
     if(arg->hand == nullptr)
     {
         printf(" Can not open device!!");
-        return RET_ERR;
+        return RET_ERROR;
     }
 
-    return RET_SUC;
+    return RET_SUCCESS;
 }
 
 //set handle arp
@@ -34,22 +34,22 @@ int set_handle_arp(pcap_arg *arg)
     if(pcap_compile(arg->hand, &filter, "arp", 1, arg->net) == -1)
     {
         printf("Can not set handle arp!!");
-        return RET_ERR;
+        return RET_ERROR;
     }
 
     if(pcap_setfilter(arg->hand, &filter) == -1)
     {
         printf("Can not install pcap fillter!!");
-        return RET_ERR;
+        return RET_ERROR;
     }
 
-    return RET_SUC;
+    return RET_SUCCESS;
 }
 //close pcap handler
 int close_handle(pcap_arg *arg)
 {
     pcap_close(arg->hand);
-    return RET_SUC;
+    return RET_SUCCESS;
 }
 
 //send arp request
@@ -84,29 +84,29 @@ int send_arp_request(pcap_arg *arg, char *addr_s)
     struct arp_header ahdr;
     struct in_addr addr;
 
-    memset(ehdr.ether_dhost, 0xff, HWADDR_LEN);
-    memcpy(ehdr.ether_shost, arg->local_mac, HWADDR_LEN);
+    memset(ehdr.ether_dhost, 0xff, MAC_ADDRESS_LEN);
+    memcpy(ehdr.ether_shost, arg->mac_address, MAC_ADDRESS_LEN);
 
     ehdr.ether_type = htons(ETHERTYPE_ARP);
 
     ahdr.op = htons(ARP_REQUEST);
 
     //sender Hdware, Protocol
-    memcpy(ahdr.sha, arg->local_mac,HWADDR_LEN);
-    memcpy(ahdr.spa, &(arg->local_ip), PTADDR_LEN);
+    memcpy(ahdr.sender_HW_Addr, arg->mac_address,MAC_ADDRESS_LEN);
+    memcpy(ahdr.sender_protocol_Addr, &(arg->local_ip), IP_ADDRESS_LEN);
 
     //target Hdware, Protocol
-    memset(ahdr.tha, 0x00,HWADDR_LEN);
+    memset(ahdr.target_HW_Addr, 0x00,MAC_ADDRESS_LEN);
     inet_pton(AF_INET, addr_s, &addr);
-    memcpy(ahdr.tpa, &addr, PTADDR_LEN);
+    memcpy(ahdr.target_protocol_Addr, &addr, IP_ADDRESS_LEN);
     memcpy(&(arg->sender_ip), &addr, sizeof (struct in_addr));
 
     if(send_arp_packet(arg, &ehdr, &ahdr))
     {
-        return RET_ERR;
+        return RET_ERROR;
     }
 
-    return RET_SUC;
+    return RET_SUCCESS;
 }
 
 //send arp reply
@@ -146,24 +146,24 @@ int send_arp_reply(pcap_arg *arg, struct arp_header *ahdr, char *addr_t)
     struct arp_header phdr;
     struct in_addr addr;
 
-    memcpy(ehdr.ether_shost,arg->local_mac, HWADDR_LEN);
-    memcpy(ehdr.ether_dhost, ahdr->sha, HWADDR_LEN);
+    memcpy(ehdr.ether_shost,arg->mac_address, MAC_ADDRESS_LEN);
+    memcpy(ehdr.ether_dhost, ahdr->sender_HW_Addr, MAC_ADDRESS_LEN);
     ehdr.ether_type = htons(ETHERTYPE_ARP);
 
     phdr.op = htons(ARP_REPLY);
 
-    memcpy(phdr.sha, arg->local_mac, HWADDR_LEN);
+    memcpy(phdr.sender_HW_Addr, arg->mac_address, MAC_ADDRESS_LEN);
     inet_pton(AF_INET,addr_t, &addr);
-    memcpy(phdr.spa, &addr, PTADDR_LEN);
-    memcpy(phdr.tha, ahdr->sha, HWADDR_LEN);
-    memcpy(phdr.tpa, ahdr->spa, PTADDR_LEN);
+    memcpy(phdr.sender_protocol_Addr, &addr, IP_ADDRESS_LEN);
+    memcpy(phdr.target_HW_Addr, ahdr->sender_HW_Addr, MAC_ADDRESS_LEN);
+    memcpy(phdr.target_protocol_Addr, ahdr->sender_protocol_Addr, IP_ADDRESS_LEN);
 
     if(send_arp_packet(arg, &ehdr, &phdr))
     {
-        return RET_ERR;
+        return RET_ERROR;
     }
 
-    return  RET_SUC;
+    return  RET_SUCCESS;
 
 }
 
@@ -171,19 +171,17 @@ int send_arp_reply(pcap_arg *arg, struct arp_header *ahdr, char *addr_t)
 int send_arp_packet(pcap_arg *arg, struct ether_header *ehdr, struct arp_header *ahdr)
 {
     u_char frame[ETH_HEADER_LEN + ARP_HEADER_LEN];
-    build_ether(frame, ehdr);
-    build_arp(frame + ETH_HEADER_LEN, ahdr);
+    get_ethernet(frame, ehdr);
+    get_arp(frame + ETH_HEADER_LEN, ahdr);
 
-    pr_out("Send Packet! :");
-    dumpcode(frame, sizeof (frame));
     printf("\n");
     if(pcap_sendpacket(arg->hand,frame, sizeof (frame)) == -1)
     {
         printf("pcap_sendpacket error!!");
-        return RET_ERR;
+        return RET_ERROR;
     }
 
-    return RET_SUC;
+    return RET_SUCCESS;
 
 
 }
@@ -208,7 +206,7 @@ int recv_arp_packet(pcap_arg *arg, struct arp_header *ahdr)
         if (ret_next !=1)
         {
             printf ("pcap next error!!");
-            return RET_ERR;
+            return RET_ERROR;
         }
 
         if(frame == nullptr)
@@ -219,18 +217,17 @@ int recv_arp_packet(pcap_arg *arg, struct arp_header *ahdr)
         if(parsing_ethernet(frame))
         {
             memset(ahdr,0, sizeof (struct arp_header));
-            pr_out("received packet: ");
-            dumpcode(frame, header->len);
+
             printf("\n");
             packet = frame + ETH_HEADER_LEN;
             parsing_arp(packet, ahdr);
 
-            if(!memcmp(&(ahdr->spa), &(arg->sender_ip), sizeof (struct in_addr)))
+            if(!memcmp(&(ahdr->sender_protocol_Addr), &(arg->sender_ip), sizeof (struct in_addr)))
             {
-                return RET_SUC;
+                return RET_SUCCESS;
             }
             else {
-                pr_out("received unwanted reply packet");
+                printf("received unwanted reply packet");
                 printf("=============================================\n");
                 continue;
 
@@ -239,11 +236,11 @@ int recv_arp_packet(pcap_arg *arg, struct arp_header *ahdr)
         }
         else {
             printf("arp filter has problem");
-            return RET_ERR;
+            return RET_ERROR;
         }
 
     }
 
     printf("received: could not find sender!!");
-    return RET_ERR;
+    return RET_ERROR;
 }
