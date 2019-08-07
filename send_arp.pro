@@ -4,17 +4,18 @@ CONFIG -= app_bundle
 CONFIG -= qt
 
 SOURCES += \
+        all_pcap.cpp \
         header.cpp \
         main.cpp \
         parsing.cpp \
-        pcapFunction.cpp \
+        pcap_msg.cpp \
         socket.cpp
 
 HEADERS += \
+    all_pcap.h \
     header.h \
     parsing.h \
-    pcapFunction.h \
-    pcapStruct.h \
+    pcap_msg.h \
     socket.h
-LIBS += -lpcap
+
 DISTFILES +=

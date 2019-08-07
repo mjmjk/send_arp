@@ -4,7 +4,7 @@
 #include <sys/socket.h>
 #include <sys/ioctl.h>
 #include <net/if.h>
-#include "pcapStruct.h"
+#include "pcap_msg.h"
 
 
 int get_my_addr(pcap_arg *arg, char *dev);
