@@ -1,7 +1,7 @@
 #include <iostream>
 #include <pcap/pcap.h>
-#include "pcap_msg.h"
-#include "all_pcap.h"
+#include "pcapStruct.h"
+#include "pcapFunction.h"
 #include "socket.h"
 #include "header.h"
 
@@ -65,6 +65,4 @@ int main(int argc, char *argv[])
 
     return 0;
 
-
-    return 0;
 }

@@ -16,7 +16,7 @@ int get_my_addr(pcap_arg *arg, char *dev)
     if((rc_gai = getaddrinfo(NULL, "0", &ai, &ai_ret)) != 0)
     {
         printf("erro get addrinfo: %s", (rc_gai));
-        return RET_ERR;
+        return RET_ERROR;
     }
 
     sock = socket(ai_ret->ai_family, ai_ret->ai_socktype, ai_ret->ai_protocol);
@@ -24,7 +24,7 @@ int get_my_addr(pcap_arg *arg, char *dev)
     if(sock == -1)
     {
         printf("error socket!!");
-        return RET_ERR;
+        return RET_ERROR;
 
     }
 
@@ -34,17 +34,17 @@ int get_my_addr(pcap_arg *arg, char *dev)
     if(ioctl(sock, SIOCGIFHWADDR, &ifr) == -1)
     {
         printf("error ioctl!!Not get Mac Address");
-        return RET_ERR;
+        return RET_ERROR;
     }
 
-    memcpy(arg->local_mac, ifr.ifr_ifru.ifru_hwaddr.sa_data,HWADDR_LEN);
+    memcpy(arg->mac_address, ifr.ifr_ifru.ifru_hwaddr.sa_data,MAC_ADDRESS_LEN);
 
 
     //get ip address
     if(ioctl(sock, SIOCGIFADDR, &ifr) == -1)
     {
             printf("error ioctl!! Not get IP Address");
-            return RET_ERR;
+            return RET_ERROR;
     }
 
     memcpy(&(arg->local_ip), &(((struct sockaddr_in *)&ifr.ifr_ifru.ifru_addr)->sin_addr),sizeof (struct in_addr));
@@ -57,7 +57,7 @@ int get_my_addr(pcap_arg *arg, char *dev)
 
     close(sock);
 
-    return RET_SUC;
+    return RET_SUCCESS;
 }
 
 

@@ -20,5 +20,6 @@ int parsing_ethernet(const u_char *frame)
 //parsing arp header
 int parsing_arp(const u_char *packet, struct arp_header *ahdr)
 {
+    //packet information into arp header
     memcpy(ahdr, packet, ARP_HEADER_LEN);
 }
