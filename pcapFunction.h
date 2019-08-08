@@ -1,5 +1,5 @@
-#ifndef ALL_PCAP_H
-#define ALL_PCAP_H
+#ifndef PCAPFUNCTION_H
+#define PCAPFUNCTION_H
 
 #define RECV_ITER_N 5
 
@@ -33,4 +33,4 @@ int send_arp_packet(pcap_arg *arg, struct ether_header *ehdr, struct arp_header 
 //received arp packet
 int recv_arp_packet(pcap_arg *arg, struct arp_header *ahdr);
 
-#endif // ALL_PCAP_H
+#endif // PCAPFUNCTION_H

@@ -46,12 +46,14 @@ int set_handle_arp(pcap_arg *arg)
 
     return RET_SUCCESS;
 }
+
 //close pcap handler
 int close_handle(pcap_arg *arg)
 {
     pcap_close(arg->hand);
     return RET_SUCCESS;
 }
+
 
 //send arp request
 
@@ -120,6 +122,7 @@ int send_arp_request(pcap_arg *arg, char *addr_s)
 
     return RET_SUCCESS;
 }
+
 
 //send arp reply
 /*
@@ -260,22 +263,23 @@ int recv_arp_packet(pcap_arg *arg, struct arp_header *ahdr)
             if(!memcmp(&(ahdr->sender_protocol_addr), &(arg->sender_ip), sizeof (struct in_addr)))
             {
                 return RET_SUCCESS;
-            }
+               }
+
             else {
-                printf("received unwanted reply packet");
-                printf("=============================================\n");
-                continue;
+            printf("received unwanted reply packet");
+            printf("=============================================\n");
+            continue;
 
             }
 
-        }
-        else {
-            printf("arp filter has problem");
-            return RET_ERROR;
-        }
-
+    }
+    else {
+        printf("arp filter has problem");
+        return RET_ERROR;
+    }
     }
 
     printf("received: could not find sender!!");
     return RET_ERROR;
 }
+

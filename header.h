@@ -38,5 +38,4 @@ struct arp_header {
 void get_ethernet(u_char *frame, struct ether_header *hdr);
 
 void get_arp(u_char *packet, struct arp_header *hdr);
-
 #endif // HEADER_H

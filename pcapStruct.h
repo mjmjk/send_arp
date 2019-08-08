@@ -1,5 +1,6 @@
-#ifndef PCAP_MSG_H
-#define PCAP_MSG_H
+#ifndef PCAPSTRUCT_H
+#define PCAPSTRUCT_H
+
 #include <sys/types.h>
 
 #include <stdio.h>
@@ -60,5 +61,4 @@ typedef struct pcap_arg
 } pcap_arg;
 
 
-
-#endif // PCAP_MSG_H
+#endif // PCAPSTRUCT_H
